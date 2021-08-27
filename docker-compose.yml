@@ -1,0 +1,29 @@
+version: '3.7'
+services:
+  nginx:
+    image: nginx:alpine
+    restart: always
+    ports:
+      - "81:81"
+      - "443:443"
+    volumes:
+      - /etc/letsencrypt:/etc/letsencrypt:ro
+      - /var/www/html:/var/www/html:ro
+      - ./docker/nginx/conf.d:/etc/nginx/conf.d:ro
+    depends_on:
+      - registry
+
+
+  registry:
+    image: registry:2
+    restart: always
+    environment:
+      REGISTRY_AUTH: htpasswd
+      REGISTRY_AUTH_HTPASSWD_REALM: Realm
+      REGISTRY_AUTH_HTPASSWD_PATH: /auth/htpasswd
+    volumes:
+      - ./htpasswd:/auth/htpasswd
+      - registry:/var/lib/registry
+
+volumes:
+  registry:
